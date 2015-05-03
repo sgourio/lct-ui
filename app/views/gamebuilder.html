@@ -1,0 +1,32 @@
+<div data-ng-init="init()">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="draw">
+        <div ng-repeat="tile in draw track by $index" class="tile">
+          <img  ng-src="{{tile.imageURL}}"  ng-drag="true" ng-drag-data="tile" ng-drag-success="dragSuccessFromDraw($index,$event)"/>
+          <br />
+          <button type="button" class="btn btn-default btn-xs" ng-click="unchooseLetter($index, tile)">
+            <span class="glyphicon glyphicon-remove-sign"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="board col-lg-4" ng-drop="true" ng-drop-success="onDropBoard($data,$event)" >
+      <div ng-repeat="line in board.squares">
+        <div ng-repeat="square in line" ng-style="{{square.style}}" class="square">
+          <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" ng-drag="true" ng-drag-data="{{square.tile}}" ng-drag-success="dragSuccessFromBoard(square,$event)"/>
+          <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="deck col-sd-12">
+            <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck" ng-click="chooseLetter(letter)"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
