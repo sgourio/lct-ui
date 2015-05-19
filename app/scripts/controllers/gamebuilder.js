@@ -16,10 +16,32 @@ angular.module('lctUiApp')
     var squareOffSetY = 14;
     var boardOffset = 0;
 
-    $scope.init = function() {
+    $scope.displayPopover = false;
+
+    $scope.$on('$viewContentLoaded', function() {
       boardOffset = angular.element('.board').offset();
+    });
+
+    $scope.init = function() {
+      //$( ".draw" ).sortable({
+      //  revert: true
+      //});
       gameBoardService.getInitialFrenchDeck(function(data){
         $scope.deck = data;
+        $scope.deckAlpha = [];
+        var lastLetter = null;
+        var line = -1;
+        for( var i = 0; i < data.length ; i++){
+          if( data[i].value != lastLetter && data[i].value != 'X' && data[i].value != 'Y' && data[i].value != 'Z' && data[i].value != '?'){
+            line++;
+            lastLetter = data[i].value;
+            $scope.deckAlpha[line] = [];
+            $scope.deckAlpha[line].push(data[i]);
+            $scope.draw.push(data[i]);
+          }else{
+            $scope.deckAlpha[line].push(data[i]);
+          }
+        }
       });
       gameBoardService.getInitialScrabbleBoardGame(function(data){
         $scope.board = data;
@@ -51,6 +73,15 @@ angular.module('lctUiApp')
       }
     };
 
+    $scope.dragStartFromDraw = function ($index, event){
+      console.log("dragStartFromDraw");
+      if (event.data != null) {
+        $scope.dragFrom = 'draw';
+        $scope.draw.splice($index, 1);
+        console.log("index: " + $index);
+      }
+    };
+
     $scope.onDragStart = function (tile,event){
       tile.dragged = true;
     };
@@ -60,53 +91,57 @@ angular.module('lctUiApp')
 
     $scope.dragSuccessFromDraw = function($index, event){
       //console.log("drag success from draw " + $index);
+      /*
       if (event.data != null) {
-        var posx = event.x - (boardOffset.left + squareOffSetX);
-        var posy = event.y - (boardOffset.top + squareOffSetY);
-        var position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
-        console.log("drop " + $scope.draw[$index].value + " on " + position.line + " " + position.column);
-        if ($scope.board.squares[position.line][position.column].tile == null) {
-          $scope.board.squares[position.line][position.column].tile = $scope.draw[$index];
-          $scope.board.squares[position.line][position.column].justDropped = true;
-          $scope.draw.splice($index, 1);
-        }
+        $scope.dragFrom = 'draw';
+        $scope.draw.splice($index, 1);
       }
+      */
     };
 
     $scope.dragSuccessFromBoard = function(square, event){
       //console.log("drag success from board");
       //console.log(event.data);
       if (event.data != null) {
-        var posx = event.x - (boardOffset.left + squareOffSetX);
-        var posy = event.y - (boardOffset.top + squareOffSetY);
-        var position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
-        console.log("drop " + square.tile.value + " on " + position.line + " " + position.column);
-        if ($scope.board.squares[position.line][position.column].tile == null) {
-          $scope.board.squares[position.line][position.column].tile = square.tile;
-          $scope.board.squares[position.line][position.column].justDropped = true;
-          square.tile = null;
-          square.justDropped = false;
-        }else if ( $scope.board.squares[position.line][position.column].justDropped){
-          //switch letters
-          var oldTile = $scope.board.squares[position.line][position.column].tile;
-          $scope.board.squares[position.line][position.column].tile = square.tile;
-          square.tile = oldTile;
-        }
+        $scope.dragFrom = 'board';
+        $scope.dragSquare = square;
+        square.tile = null;
+        square.justDropped = false;
       }
     };
 
     $scope.onDropBoard = function (tile,event){
-      /*
+
       if( tile != null ) {
-        //console.log("drop board");
-        //console.log(tile);
         var posx = event.x - (boardOffset.left + squareOffSetX);
         var posy = event.y - (boardOffset.top + squareOffSetY);
         var position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
-        $scope.board[position.line][position.column].tile = tile;
+        console.log("drop " + tile.value + " on " + position.line + " " + position.column);
+        var targetSquare = $scope.board.squares[position.line][position.column];
+        if ( targetSquare.tile == null || (targetSquare.tile != null && targetSquare.justDropped)) {
+          if (targetSquare.tile != null && targetSquare.justDropped) {
+            //switch letters
+            if ($scope.dragFrom == 'draw') {
+              // drag from draw
+              $scope.draw.push(targetSquare.tile);
+            } else {
+              //drag from board
+              $scope.dragSquare.tile = targetSquare.tile;
+              $scope.dragSquare.justDropped = true;
+            }
+          }
+          targetSquare.tile = tile;
+          targetSquare.justDropped = true;
+        }
+        $scope.dragFrom = null;
+        $scope.dragSquare = null;
       }
-      //letter.style = {top: position.top, left: position.left};
-      */
     };
+
+    $scope.onDropDraw = function (tile,event){
+      $scope.draw.push(tile);
+      $scope.dragFrom = null;
+      $scope.dragSquare = null;
+    }
   }]);
 

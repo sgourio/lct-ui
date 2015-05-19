@@ -16,7 +16,7 @@ angular
     'ngRoute',
     'ngSanitize',
     'ngTouch',
-    'ngDraggable'
+    'nsPopover'
   ])
   .config(['$routeProvider', '$provide', function ($routeProvider, $provide) {
     $routeProvider

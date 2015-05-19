@@ -1,32 +1,42 @@
 <div data-ng-init="init()">
   <div class="row">
     <div class="col-lg-12">
-      <div class="draw">
-        <div ng-repeat="tile in draw track by $index" class="tile">
-          <img  ng-src="{{tile.imageURL}}"  ng-drag="true" ng-drag-data="tile" ng-drag-success="dragSuccessFromDraw($index,$event)"/>
-          <br />
-          <button type="button" class="btn btn-default btn-xs" ng-click="unchooseLetter($index, tile)">
-            <span class="glyphicon glyphicon-remove-sign"></span>
-          </button>
-        </div>
-      </div>
+      <ul class="draw" ng-model="draw">
+        <li ng-repeat="tile in draw track by $index" class="tile">
+          <img  ng-src="{{tile.imageURL}}" drag="true" data-value="{{tile}}" data-from="draw" data-index="{{$index}}"/>
+          <a ng-click="unchooseLetter($index, tile)"><span class="glyphicon glyphicon-remove-sign"></span></a>
+          <a ng-if="tile.tileType == 'wildcard'" ns-popover ns-popover-template="popover" ns-popover-trigger="click" ns-popover-placement="bottom"><span class="glyphicon glyphicon-question-sign"></span></a>
+        </li>
+      </ul>
     </div>
   </div>
   <div class="row">
-    <div class="board col-lg-4" ng-drop="true" ng-drop-success="onDropBoard($data,$event)" >
-      <div ng-repeat="line in board.squares">
-        <div ng-repeat="square in line" ng-style="{{square.style}}" class="square">
-          <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" ng-drag="true" ng-drag-data="{{square.tile}}" ng-drag-success="dragSuccessFromBoard(square,$event)"/>
-          <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
-        </div>
-      </div>
+    <div class="board col-lg-5 col-md-7" drop>
+      <ul class="lines">
+        <li ng-repeat="line in board.squares" ng-init="lineIndex = $index">
+          <ul class="columns">
+            <li ng-repeat="square in line" ng-style="{{square.style}}" class="square">
+              <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" drag="true" drag-from="board" data-value="{{square.tile}}" data-line="{{lineIndex}}" data-column="{{$index}}"/>
+              <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
-    <div class="col-lg-8">
+    <div class="col-lg-7 col-md-5">
       <div class="row">
         <div class="deck col-sd-12">
-            <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck" ng-click="chooseLetter(letter)"/>
+            <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck track by $index" ng-click="chooseLetter(letter)"/>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script type="text/ng-template" id="popover">
+  <ul class="jokerPopover">
+    <li ng-repeat="n in ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']">
+      <img  ng-src="{{'images/lettres36/fr/joker/'+n+'.gif'}}"/>
+    </li>
+  </ul>
+</script>

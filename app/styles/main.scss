@@ -1,6 +1,7 @@
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 // bower:scss
 @import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+@import "nsPopover/sass/ns-popover.scss";
 // endbower
 
 .browsehappy {
@@ -14,6 +15,11 @@ body {
   padding: 0;
 }
 
+ul{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 /* Everything but the jumbotron gets side spacing for mobile first views */
 .header,
 .marketing,
@@ -87,7 +93,6 @@ body {
   }
 }
 
-
 .board{
   clear: both;
   background-image: url('/images/plateau.png');
@@ -97,57 +102,58 @@ body {
 
   .square{
     position: absolute;
+    width: 37px;
+    height: 37px;
   }
 
   img{
     cursor:move;
   }
 }
+
 .draw{
   border: 1px solid #5f9ea0;
-  height: 36px;
+  height: 76px;
   margin-bottom: 21px;
+  position: relative;
   .tile {
+    display: inline-block;
     float: left;
-    margin-right: 2px;
+    width: 37px;
+    position: relative;
     img {
       position: relative;
       cursor: move;
+      width: 34px;
+      height: 34px;
     }
   }
+
+  .over{
+    padding-left:37px;
+    width: 74px;
+  }
+
 }
+
 .deck{
   padding-top: 10px;
   img{
     float: left;
+    margin-right: 1px;
     position: relative;
   }
 }
-.deck img, .draw .tile{
-  &.ng-enter, &.ng-move{
-    -webkit-animation: rotateIn 0.3s;
-    -moz-animation: rotateIn 0.3s;
-    -o-animation: rotateIn 0.3s;
-    animation: rotateIn 0.3s;
-  }
 
-  &.ng-leave{
-    -webkit-animation: rotateOutDownRight 0.3s;
-    -moz-animation: rotateOutDownRight 0.3s;
-    -o-animation: rotateOutDownRight 0.3s;
-    animation: rotateOutDownRight 0.3s;
+.jokerPopover{
+  li{
+    float: left;
+    margin-right: 1px;
   }
-  &.ng-enter-stagger {
-    /* notice how we're using animation instead of transition here */
-    -webkit-animation-delay:0.01s;
-    animation-delay:0.01s;
-
-    /* yes we still need to do this too */
-    -webkit-animation-duration:0;
-    animation-duration:0;
+  li:nth-child(3n){
+    clear: both;
   }
 }
-
 
 
 

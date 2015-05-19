@@ -66,7 +66,60 @@ angular.module('lctUiApp')
         position.line = line;
         position.column = column;
         return position;
+      },
+
+
+      moveDrawToBoard : function(draw, board, tile, drawIndex, line, column){
+        var targetSquare = board.squares[line][column];
+        if (targetSquare.tile == null){
+          targetSquare.tile = tile;
+          targetSquare.justDropped = true;
+          draw.splice(drawIndex, 1);
+          return true;
+        }else if(targetSquare.justDropped){
+          var switchedTile = targetSquare.tile;
+          targetSquare.tile = tile;
+          draw.splice(drawIndex, 1, switchedTile);
+          return true;
+        }
+        // cancel
+        return false;
+      },
+
+      moveDrawToDraw : function(draw, tile, drawIndex, drawDropIndex){
+        if( drawDropIndex >= draw.length){
+          draw[draw.length] = tile;
+          draw.splice(drawIndex, 1);
+        }else{
+          draw.splice(drawIndex, 1);
+          draw.splice(drawDropIndex, 0, tile);
+        }
+      },
+
+      moveBoardToBoard : function(board, tile, line, column, originLine, originColumn){
+        var targetSquare = board.squares[line][column];
+        var originSquare = board.squares[originLine][originColumn];
+        if (targetSquare.tile == null){
+          targetSquare.tile = tile;
+          targetSquare.justDropped = true;
+          originSquare.tile = null;
+          originSquare.justDropped = false;
+          return true;
+        }else if(targetSquare.justDropped){
+          originSquare.tile = targetSquare.tile;
+          targetSquare.tile = tile;
+          return true;
+        }
+        return false;
+      },
+
+      moveBoardToDraw : function(board, draw, tile, drawDropIndex, originLine, originColumn){
+        var originSquare = board.squares[originLine][originColumn];
+        draw.splice(drawDropIndex, 0, tile);
+        originSquare.tile = null;
+        originSquare.justDropped = false;
       }
+
     };
     return gameBoardService;
   }]);
