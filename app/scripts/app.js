@@ -35,6 +35,6 @@ angular
       .otherwise({
         redirectTo: '/'
       });
-    $provide.value('apiRoot', $('#apiRoot').attr('href'));
+    $provide.value('apiRoot', angular.element('#apiRoot').attr('href'));
 
   }]);

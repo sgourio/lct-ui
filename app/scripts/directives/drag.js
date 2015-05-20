@@ -13,93 +13,91 @@ angular.module('lctUiApp')
     var squareOffSetX = 16;
     var squareOffSetY = 14;
 
-    return function(scope, element, attr) {
+    return function(scope, element) {
       //element.addClass("ui-state-default");
       var $board = angular.element('.board');
       var $draw = angular.element('.draw');
       var drawOffset = $draw.offset();
       var drawWidth = $draw.outerWidth();
       var drawHeight = $draw.height();
+      var boardOffset = $board.offset();
+      var boardWidth = $board.outerWidth();
+      var boardHeight = $board.height();
 
-      var move = function(event, obj){
+      var initOffset = function(){
+        drawOffset = $draw.offset();
+        drawWidth = $draw.outerWidth();
+        drawHeight = $draw.height();
+        boardOffset = $board.offset();
+        boardWidth = $board.outerWidth();
+        boardHeight = $board.height();
+      };
+
+      var move = function(pageX, pageY, obj){
         // Place element where the finger is
         obj.css('position','absolute');
         obj.css('z-index','100');
-        obj.css('left', (event.pageX - 17) + 'px');
-        obj.css('top' , (event.pageY - 17) + 'px');
+        obj.css('left', (pageX - 17) + 'px');
+        obj.css('top' , (pageY - 17) + 'px');
       };
 
-      var isOnBoard = function(event){
-        var boardOffset = $board.offset();
-        var boardWidth = $board.outerWidth();
-        var boardHeight = $board.height();
-
-        return event.pageX > boardOffset.left
-              && event.pageX < (boardOffset.left + boardWidth)
-              && event.pageY > boardOffset.top
-              && event.pageY < (boardOffset.top + boardHeight);
+      var isOnBoard = function(pageX, pageY){
+        return pageX > boardOffset.left && pageX < (boardOffset.left + boardWidth) && pageY > boardOffset.top && pageY < (boardOffset.top + boardHeight);
       };
 
-      var isOnDraw = function(event){
-        return event.pageX > drawOffset.left
-          && event.pageX < (drawOffset.left + drawWidth)
-          && event.pageY > drawOffset.top
-          && event.pageY < (drawOffset.top + drawHeight);
+      var isOnDraw = function(pageX, pageY){
+        return pageX > drawOffset.left && pageX < (drawOffset.left + drawWidth) && pageY > drawOffset.top && pageY < (drawOffset.top + drawHeight);
       };
 
 
+      var drawmousemove = function(pageX, pageY, obj){
 
-      var drawmousemove = function(event, obj){
-        event.preventDefault();
         angular.element('.draw li').removeClass('over');
-        if (isOnDraw(event)){
-          var posx = event.pageX - drawOffset.left;
+        if (isOnDraw(pageX, pageY)){
+          var posx = pageX - drawOffset.left;
           var drawIndex = angular.element(obj).attr('data-index');
           var index = Math.floor( posx / squareWitdh);
-          if( index >= drawIndex )index++;
+          if( index >= drawIndex ){index++;}
           var current = angular.element('.draw li').eq(index);
           current.addClass('over');
         }
 
-        move(event, obj);
+        move(pageX, pageY, obj);
       };
-      var endmousemove = function(event, obj){
-        event.preventDefault();
-        $document.off("mousemove");
+      var endmousemove = function(pageX, pageY, obj){
         angular.element('.draw li.over').removeClass('over');
         var from = angular.element(obj).attr('data-from');
-        if( from == 'draw') {
-          if (isOnBoard(event)) {
-            var boardOffset = $board.offset();
-            var posx = event.pageX - (boardOffset.left + squareOffSetX);
-            var posy = event.pageY - (boardOffset.top + squareOffSetY);
-            var position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
-            var tile = JSON.parse(angular.element(obj).attr('data-value'));
-            var drawIndex = angular.element(obj).attr('data-index');
+        var posx,posy, position,tile,drawIndex,droppedIndex,originLine,originColumn;
+        if( from === 'draw') {
+          if (isOnBoard(pageX, pageY)) {
+            posx = pageX - (boardOffset.left + squareOffSetX);
+            posy = pageY - (boardOffset.top + squareOffSetY);
+            position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
+            tile = JSON.parse(angular.element(obj).attr('data-value'));
+            drawIndex = angular.element(obj).attr('data-index');
             gameBoardService.moveDrawToBoard(scope.draw, scope.board, tile, drawIndex, position.line, position.column);
-          } else if (isOnDraw(event)) {
-            var tile = JSON.parse(angular.element(obj).attr('data-value'));
-            var drawIndex = angular.element(obj).attr('data-index');
-            var posx = event.pageX - drawOffset.left;
-            var droppedIndex = Math.floor(posx / squareWitdh);
+          } else if (isOnDraw(pageX, pageY)) {
+            tile = JSON.parse(angular.element(obj).attr('data-value'));
+            drawIndex = angular.element(obj).attr('data-index');
+            posx = pageX - drawOffset.left;
+            droppedIndex = Math.floor(posx / squareWitdh);
             gameBoardService.moveDrawToDraw(scope.draw, tile, drawIndex, droppedIndex);
           }
         }else{
-          if (isOnBoard(event)) {
-            var tile = JSON.parse(angular.element(obj).attr('data-value'));
-            var originLine = angular.element(obj).attr('data-line');
-            var originColumn = angular.element(obj).attr('data-column');
-            var boardOffset = $board.offset();
-            var posx = event.pageX - (boardOffset.left + squareOffSetX);
-            var posy = event.pageY - (boardOffset.top + squareOffSetY);
-            var position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
+          if (isOnBoard(pageX, pageY)) {
+            tile = JSON.parse(angular.element(obj).attr('data-value'));
+            originLine = angular.element(obj).attr('data-line');
+            originColumn = angular.element(obj).attr('data-column');
+            posx = pageX - (boardOffset.left + squareOffSetX);
+            posy = pageY - (boardOffset.top + squareOffSetY);
+            position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
             gameBoardService.moveBoardToBoard(scope.board, tile, position.line, position.column, originLine, originColumn);
-          }else{
-            var tile = JSON.parse(angular.element(obj).attr('data-value'));
-            var originLine = angular.element(obj).attr('data-line');
-            var originColumn = angular.element(obj).attr('data-column');
-            var posx = event.pageX - drawOffset.left;
-            var droppedIndex = Math.floor(posx / squareWitdh);
+          }else if (isOnDraw(pageX, pageY)){
+            tile = JSON.parse(angular.element(obj).attr('data-value'));
+            originLine = angular.element(obj).attr('data-line');
+            originColumn = angular.element(obj).attr('data-column');
+            posx = pageX - drawOffset.left;
+            droppedIndex = Math.floor(posx / squareWitdh);
             gameBoardService.moveBoardToDraw(scope.board, scope.draw, tile, droppedIndex, originLine, originColumn);
           }
         }
@@ -108,25 +106,50 @@ angular.module('lctUiApp')
         scope.$apply();
       };
 
-      element.on("mousedown", function(event) {
-        event.preventDefault();
-        var clone = element.clone();
+      var dragStart = function(obj, pageX, pageY){
+        initOffset();
+        var clone = obj.clone();
         angular.element($document[0].body).append(clone);
-        angular.element(element).parent().css('display','none');
-        move(event, clone);
-        $document.on("mousemove", function(event){
-          drawmousemove(event, clone);
-        });
-        clone.on("mouseup", function(event){
-          endmousemove(event, clone);
-        });
-
-        clone.on('touchmove', function(event) {
-          var touch = event.targetTouches[0];
-          move(touch, clone);
-
+        angular.element(obj).parent().css('display','none');
+        move(pageX, pageY, clone);
+        $document.on('mousemove', function(event){
           event.preventDefault();
-        }, false);
+          drawmousemove(event.pageX, event.pageY, clone);
+        });
+        $document.on('mouseup', function(event){
+          event.preventDefault();
+          $document.off('mousemove mouseup');
+          endmousemove(event.pageX, event.pageY, clone);
+        });
+        $document.on('touchend', function(event){
+          event.preventDefault();
+          $document.off('touchmove touchend');
+          var e = event.originalEvent;
+          var touch = e.changedTouches[0];
+          endmousemove(touch.pageX, touch.pageY, clone);
+        });
+        $document.on('touchmove', function(event) {
+          event.preventDefault();
+          var e = event.originalEvent;
+          var touch = e.targetTouches[0];
+          drawmousemove(touch.pageX, touch.pageY, clone);
+        });
+      };
+
+      element.on('mousedown', function(event) {
+        event.preventDefault();
+        dragStart(element, event.pageX, event.pageY);
       });
+
+      element.on('touchstart', function(event) {
+        event.preventDefault();
+        var e = event.originalEvent;
+        var touch = e.targetTouches[0];
+        dragStart(element, touch.pageX, touch.pageY);
+      });
+
+      //element.on('touchstart', function(event) {
+      //  dragStart(element, event);
+      //});
     };
   }]);

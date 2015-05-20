@@ -1,6 +1,6 @@
 <div data-ng-init="init()">
   <div class="row">
-    <div class="col-lg-12">
+    <div class="col-md-6">
       <ul class="draw" ng-model="draw">
         <li ng-repeat="tile in draw track by $index" class="tile">
           <img  ng-src="{{tile.imageURL}}" drag="true" data-value="{{tile}}" data-from="draw" data-index="{{$index}}"/>
@@ -9,23 +9,28 @@
         </li>
       </ul>
     </div>
+    <div class="col-md-6">
+      <button class="btn btn-default" type="button" ng-click="randomDraw()">Tirage au sort</button>
+    </div>
   </div>
   <div class="row">
-    <div class="board col-lg-5 col-md-7" drop>
-      <ul class="lines">
-        <li ng-repeat="line in board.squares" ng-init="lineIndex = $index">
-          <ul class="columns">
-            <li ng-repeat="square in line" ng-style="{{square.style}}" class="square">
-              <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" drag="true" drag-from="board" data-value="{{square.tile}}" data-line="{{lineIndex}}" data-column="{{$index}}"/>
-              <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
-            </li>
-          </ul>
-        </li>
-      </ul>
+    <div class="col-lg-6 col-md-7">
+      <div class="board" drop>
+        <ul class="lines">
+          <li ng-repeat="line in board.squares" ng-init="lineIndex = $index">
+            <ul class="columns">
+              <li ng-repeat="square in line" ng-style="{{square.style}}" class="square">
+                <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" drag="true" drag-from="board" data-value="{{square.tile}}" data-line="{{lineIndex}}" data-column="{{$index}}"/>
+                <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
-    <div class="col-lg-7 col-md-5">
+    <div class="col-lg-3 col-md-5">
       <div class="row">
-        <div class="deck col-sd-12">
+        <div class="deck col-md-12">
             <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck track by $index" ng-click="chooseLetter(letter)"/>
         </div>
       </div>

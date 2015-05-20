@@ -30,8 +30,11 @@ ul{
 
 /* Custom page header */
 .header {
-  border-bottom: 1px solid #e5e5e5;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
+
+  .navbar{
+    margin-bottom: 2px;
+  }
 
   /* Make the masthead heading the same height as the navigation */
   h3 {
@@ -85,7 +88,7 @@ ul{
   }
   /* Space out the masthead */
   .header {
-    margin-bottom: 30px;
+    margin-bottom: 0px;
   }
   /* Remove the bottom border on the jumbotron for visual effect */
   .jumbotron {
@@ -99,7 +102,6 @@ ul{
   width: 580px;
   height: 580px;
   position: relative;
-
   .square{
     position: absolute;
     width: 37px;
@@ -113,8 +115,8 @@ ul{
 
 .draw{
   border: 1px solid #5f9ea0;
-  height: 76px;
-  margin-bottom: 21px;
+  height: 54px;
+  margin-bottom: 2px;
   position: relative;
   .tile {
     display: inline-block;
