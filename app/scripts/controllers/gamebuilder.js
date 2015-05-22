@@ -8,7 +8,7 @@
  * Controller of the lctUiApp
  */
 angular.module('lctUiApp')
-  .controller('GamebuilderCtrl', ['$scope', '$http','gameBoardService', 'apiRoot', function ($scope, $http, gameBoardService, apiRoot) {
+  .controller('GamebuilderCtrl', ['$scope', '$http','gameBoardService', function ($scope, $http, gameBoardService) {
 
     var squareWitdh = 37;
     var squareHeight = 37;
@@ -17,32 +17,22 @@ angular.module('lctUiApp')
     var boardOffset = 0;
 
     $scope.displayPopover = false;
+    $scope.displayDeck = false;
+    $scope.currentJoker = null;
+    $scope.deck = [];
+    $scope.suggestions = [];
+    $scope.selectedSuggestIndex= -1;
 
     $scope.$on('$viewContentLoaded', function() {
       boardOffset = angular.element('.board').offset();
     });
 
     $scope.init = function() {
-      //$( ".draw" ).sortable({
-      //  revert: true
-      //});
       gameBoardService.getInitialFrenchDeck(function(data){
         $scope.deck = data;
-        $scope.deckAlpha = [];
-        var lastLetter = null;
-        var line = -1;
-        for( var i = 0; i < data.length ; i++){
-          if( data[i].value != lastLetter && data[i].value != 'X' && data[i].value != 'Y' && data[i].value != 'Z' && data[i].value != '?'){
-            line++;
-            lastLetter = data[i].value;
-            $scope.deckAlpha[line] = [];
-            $scope.deckAlpha[line].push(data[i]);
-            //$scope.draw.push(data[i]);
-          }else{
-            $scope.deckAlpha[line].push(data[i]);
-          }
-        }
+        gameBoardService.sortTiles($scope.deck);
       });
+
       gameBoardService.getInitialScrabbleBoardGame(function(data){
         $scope.board = data;
         for( var i = 0 ; i < 15 ; i++){
@@ -51,44 +41,58 @@ angular.module('lctUiApp')
             $scope.board.squares[i][j].style = {top: position.top, left: position.left};
           }
         }
+        $scope.board.middleSquare = $scope.board.squares[7][7];
       });
       $scope.draw = [];
     };
 
-    $scope.chooseLetter = function(letter){
-      console.log("chooseLetter");
-      for(var i = $scope.deck.length - 1; i >= 0; i--) {
-        if($scope.deck[i] === letter) {
-          $scope.deck.splice(i, 1);
-          $scope.draw.push(letter);
-        }
-      }
+    $scope.chooseLetter = function(index){
+      gameBoardService.drawTile($scope.board, $scope.draw, $scope.deck, index);
+      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
+      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
+      $scope.selectedSuggestIndex = -1;
     };
 
-    $scope.unchooseLetter = function($index, tile){
-      console.log("unchooseLetter");
-      if($scope.draw[$index] != null) {
-        $scope.draw.splice($index,1);
-        $scope.deck.push(tile);
-      }
+    $scope.unchooseLetter = function(index){
+      gameBoardService.undrawTile($scope.draw, $scope.deck, index);
+      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
+      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
+      $scope.selectedSuggestIndex = -1;
     };
 
     $scope.clearDraw = function(){
-      for( var i = 0; i < $scope.draw.length ; i++) {
-          $scope.deck.push($scope.draw[i]);
-      }
-      $scope.draw = [];
+      gameBoardService.clearDraw($scope.draw, $scope.deck);
     };
 
     $scope.randomDraw = function(){
-      $scope.clearDraw();
-      var limit = Math.min(7, $scope.deck.length);
-      for( var i = 0; i < limit ; i++) {
-        var index = Math.floor(Math.random() * $scope.deck.length);
-        var tile = $scope.deck[index];
-        $scope.deck.splice(index, 1);
-        $scope.draw.push(tile);
-      }
+      gameBoardService.randomDraw($scope.board, $scope.draw, $scope.deck);
+      gameBoardService.findWords($scope.draw, $scope.board, $scope.suggestions);
+      $scope.selectedSuggestIndex = -1;
+    };
+
+    $scope.startChangeJokerValue = function(tile){
+      $scope.currentJoker = tile;
+    };
+
+    $scope.changeJokerValue = function(letter){
+      $scope.currentJoker.imageURL = 'images/lettres36/fr/joker/'+letter+'.gif';
+      $scope.currentJoker.value = letter;
+    };
+
+    $scope.findWords = function(){
+      //gameBoardService.clearBoard($scope.board, $scope.draw);
+      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
+      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
+      $scope.selectedSuggestIndex = -1;
+    };
+
+    $scope.putWord = function(suggest, $index){
+      $scope.selectedSuggestIndex = $index;
+      gameBoardService.putWord($scope.board, $scope.draw, suggest);
+    };
+
+    $scope.validTurn = function(){
+      gameBoardService.validTurn($scope.board);
     };
 
   }]);

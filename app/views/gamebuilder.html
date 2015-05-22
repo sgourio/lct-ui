@@ -1,27 +1,29 @@
 <div data-ng-init="init()">
   <div class="row">
     <div class="col-md-6">
-      <ul class="draw" ng-model="draw">
+      <ul class="draw" ng-model="draw"> <!-- DRAW -->
         <li ng-repeat="tile in draw track by $index" class="tile">
           <img  ng-src="{{tile.imageURL}}" drag="true" data-value="{{tile}}" data-from="draw" data-index="{{$index}}"/>
-          <a ng-click="unchooseLetter($index, tile)"><span class="glyphicon glyphicon-remove-sign"></span></a>
-          <a ng-if="tile.tileType == 'wildcard'" ns-popover ns-popover-template="popover" ns-popover-trigger="click" ns-popover-placement="bottom"><span class="glyphicon glyphicon-question-sign"></span></a>
+          <a ng-click="unchooseLetter($index)"><span class="glyphicon glyphicon-remove-sign"></span></a>
+          <a ng-if="tile.tileType == 'wildcard'" ns-popover ns-popover-template="popover" ns-popover-trigger="click" ns-popover-placement="bottom" ng-click="startChangeJokerValue(tile)"><span class="glyphicon glyphicon-question-sign"></span></a>
         </li>
       </ul>
     </div>
     <div class="col-md-6">
       <button class="btn btn-default" type="button" ng-click="randomDraw()">Tirage au sort</button>
+      <button class="btn btn-default" type="button" ng-click="displayDeck = !displayDeck">Choisir</button>
+
     </div>
   </div>
   <div class="row">
     <div class="col-lg-6 col-md-7">
-      <div class="board" drop>
-        <ul class="lines">
-          <li ng-repeat="line in board.squares" ng-init="lineIndex = $index">
+      <div class="board" drop><!-- BOARD -->
+        <ul class="rows">
+          <li ng-repeat="row in board.squares" ng-init="lineIndex = $index">
             <ul class="columns">
-              <li ng-repeat="square in line" ng-style="{{square.style}}" class="square">
-                <img  ng-src="{{square.tile.imageURL}}" ng-if="square.justDropped" drag="true" drag-from="board" data-value="{{square.tile}}" data-line="{{lineIndex}}" data-column="{{$index}}"/>
-                <img  ng-src="{{square.tile.imageURL}}" ng-if="!square.justDropped"/>
+              <li ng-repeat="square in row" ng-style="{{square.style}}" class="square">
+                <img  ng-src="{{square.droppedTile.tile.imageURL}}" ng-if="square.justDropped" drag="true" drag-from="board" data-value="{{square.droppedTile.tile}}" data-row="{{lineIndex}}" data-column="{{$index}}"/>
+                <img  ng-src="{{square.droppedTile.tile.imageURL}}" ng-if="!square.justDropped"/>
               </li>
             </ul>
           </li>
@@ -29,11 +31,27 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-5">
-      <div class="row">
-        <div class="deck col-md-12">
-            <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck track by $index" ng-click="chooseLetter(letter)"/>
+      <div class="row" ng-show="displayDeck">
+        <div class="deck col-md-12"> <!-- DECK -->
+            <img  width="24" ng-src="{{letter.imageURL}}" ng-repeat="letter in deck track by $index" ng-click="chooseLetter($index)"/>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-12" ng-if="suggestions.length > 0"> <!-- SUGGESTIONS -->
+          <span>Choisissez le mot à placer</span>
+          <ul class="suggestions">
+            <li ng-repeat="suggest in suggestions" ng-click="putWord(suggest, $index)" ng-class="{ 'selectedSuggestWord': $index == selectedSuggestIndex }">
+                {{suggest.points + 'pts - ' + suggest.reference + ' - ' + suggest.value}}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12" ng-if="selectedSuggestIndex >= 0">
+          <button class="btn btn-default" type="button" ng-click="validTurn()">Valider</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -41,7 +59,7 @@
 <script type="text/ng-template" id="popover">
   <ul class="jokerPopover">
     <li ng-repeat="n in ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']">
-      <img  ng-src="{{'images/lettres36/fr/joker/'+n+'.gif'}}"/>
+      <img  ng-src="{{'images/lettres36/fr/joker/'+n+'.gif'}}" ng-click="changeJokerValue(n,$event); hidePopover()" />
     </li>
   </ul>
 </script>

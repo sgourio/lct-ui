@@ -156,7 +156,17 @@ ul{
     clear: both;
   }
 }
+.suggestions{
+  li {
+    &:hover {
+      cursor: pointer;
+    }
+    &.selectedSuggestWord{
+      font-weight: bold;
+    }
+  }
 
+}
 
 
 

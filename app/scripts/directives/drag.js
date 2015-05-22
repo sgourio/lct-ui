@@ -67,7 +67,7 @@ angular.module('lctUiApp')
       var endmousemove = function(pageX, pageY, obj){
         angular.element('.draw li.over').removeClass('over');
         var from = angular.element(obj).attr('data-from');
-        var posx,posy, position,tile,drawIndex,droppedIndex,originLine,originColumn;
+        var posx,posy, position,tile,drawIndex,droppedIndex,originRow,originColumn;
         if( from === 'draw') {
           if (isOnBoard(pageX, pageY)) {
             posx = pageX - (boardOffset.left + squareOffSetX);
@@ -75,7 +75,7 @@ angular.module('lctUiApp')
             position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
             tile = JSON.parse(angular.element(obj).attr('data-value'));
             drawIndex = angular.element(obj).attr('data-index');
-            gameBoardService.moveDrawToBoard(scope.draw, scope.board, tile, drawIndex, position.line, position.column);
+            gameBoardService.moveDrawToBoard(scope.draw, scope.board, tile, drawIndex, position.row, position.column);
           } else if (isOnDraw(pageX, pageY)) {
             tile = JSON.parse(angular.element(obj).attr('data-value'));
             drawIndex = angular.element(obj).attr('data-index');
@@ -86,19 +86,19 @@ angular.module('lctUiApp')
         }else{
           if (isOnBoard(pageX, pageY)) {
             tile = JSON.parse(angular.element(obj).attr('data-value'));
-            originLine = angular.element(obj).attr('data-line');
+            originRow = angular.element(obj).attr('data-row');
             originColumn = angular.element(obj).attr('data-column');
             posx = pageX - (boardOffset.left + squareOffSetX);
             posy = pageY - (boardOffset.top + squareOffSetY);
             position = gameBoardService.findLineColumn(posy, posx, squareHeight, squareWitdh);
-            gameBoardService.moveBoardToBoard(scope.board, tile, position.line, position.column, originLine, originColumn);
+            gameBoardService.moveBoardToBoard(scope.board, tile, position.row, position.column, originRow, originColumn);
           }else if (isOnDraw(pageX, pageY)){
             tile = JSON.parse(angular.element(obj).attr('data-value'));
-            originLine = angular.element(obj).attr('data-line');
+            originRow = angular.element(obj).attr('data-row');
             originColumn = angular.element(obj).attr('data-column');
             posx = pageX - drawOffset.left;
             droppedIndex = Math.floor(posx / squareWitdh);
-            gameBoardService.moveBoardToDraw(scope.board, scope.draw, tile, droppedIndex, originLine, originColumn);
+            gameBoardService.moveBoardToDraw(scope.board, scope.draw, tile, droppedIndex, originRow, originColumn);
           }
         }
         angular.element(element).parent().css('display','block');
