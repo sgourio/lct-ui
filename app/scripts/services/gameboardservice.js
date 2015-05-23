@@ -221,9 +221,12 @@ angular.module('lctUiApp')
       },
 
       findWords : function(draw, board, possibleWords, successCallback){
+        var boadClone = JSON.parse(JSON.stringify(board));
+        var drawClone = draw.slice(0);
+        this.clearBoard(boadClone,drawClone);
         var boardGameQueryBean = {
-          tileList: draw,
-          boardGame: board
+          tileList: drawClone,
+          boardGame: boadClone
         };
 
         if( possibleWords.length > 0 ) {
@@ -231,14 +234,11 @@ angular.module('lctUiApp')
         }
         $http.post(apiRoot + '/board/fr/bestword', boardGameQueryBean).
           success(function (data) {
-
             Array.prototype.push.apply(possibleWords, data);
-            //console.log(data);
-
             typeof successCallback === 'function' && successCallback();
           }).
           error(function (data, status) {
-            console.log('Service ' + apiRoot + '/board/fr/deck/init' +' respond ' + status);
+            console.log('Service ' + apiRoot + '/board/fr/bestword' +' respond ' + status);
           });
       },
 

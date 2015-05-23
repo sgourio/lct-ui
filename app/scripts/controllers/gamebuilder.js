@@ -85,9 +85,8 @@ angular.module('lctUiApp')
 
     $scope.findWords = function(){
       $scope.selectedSuggestIndex = -1;
-      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
       $scope.callingFindWords = true;
-      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions, function(){
+      gameBoardService.findWords($scope.draw, $scope.board, $scope.suggestions, function(){
         $scope.callingFindWords = false;
       });
     };
