@@ -10,8 +10,9 @@
       </ul>
     </div>
     <div class="col-md-6">
-      <button class="btn btn-default" type="button" ng-click="randomDraw()">Tirage au sort</button>
+      <button class="btn btn-default" type="button" ng-click="randomDraw()">Nouveau tirage aléatoire</button>
       <button class="btn btn-default" type="button" ng-click="displayDeck = !displayDeck">Choisir</button>
+      <button class="btn btn-default" type="button" ng-click="init()">Nouveau Jeu</button>
 
     </div>
   </div>
@@ -37,13 +38,21 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-12" ng-if="suggestions.length > 0"> <!-- SUGGESTIONS -->
-          <span>Choisissez le mot à placer</span>
-          <ul class="suggestions">
-            <li ng-repeat="suggest in suggestions" ng-click="putWord(suggest, $index)" ng-class="{ 'selectedSuggestWord': $index == selectedSuggestIndex }">
-                {{suggest.points + 'pts - ' + suggest.reference + ' - ' + suggest.value}}
-            </li>
-          </ul>
+        <div class="col-md-12">
+          Tour #{{currentTurnNumber}}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12" > <!-- SUGGESTIONS -->
+          <div class="loader" ng-if="callingFindWords">Recherche des meilleurs mots possibles<div class="loader-inner ball-clip-rotate"><div></div></div></div>
+          <div ng-if="suggestions.length > 0">
+            <span>Choisissez le mot à placer:</span>
+            <ul class="suggestions">
+              <li ng-repeat="suggest in suggestions" ng-click="putWord(suggest, $index)" ng-class="{ 'selectedSuggestWord': $index == selectedSuggestIndex }">
+                  {{suggest.points + 'pts - ' + suggest.reference + ' - '}}<span>{{suggest.value}}</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
       <div class="row">

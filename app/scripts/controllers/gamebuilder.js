@@ -16,22 +16,23 @@ angular.module('lctUiApp')
     var squareOffSetY = 14;
     var boardOffset = 0;
 
-    $scope.displayPopover = false;
-    $scope.displayDeck = false;
-    $scope.currentJoker = null;
-    $scope.deck = [];
-    $scope.suggestions = [];
-    $scope.selectedSuggestIndex= -1;
+
 
     $scope.$on('$viewContentLoaded', function() {
       boardOffset = angular.element('.board').offset();
     });
 
     $scope.init = function() {
-      gameBoardService.getInitialFrenchDeck(function(data){
-        $scope.deck = data;
-        gameBoardService.sortTiles($scope.deck);
-      });
+      $scope.displayPopover = false;
+      $scope.displayDeck = false;
+      $scope.currentJoker = null;
+      $scope.deck = [];
+      $scope.suggestions = [];
+      $scope.selectedSuggestIndex= -1;
+      $scope.game = {};
+      $scope.game.turnList = [];
+      $scope.draw = [];
+      $scope.currentTurnNumber = 1;
 
       gameBoardService.getInitialScrabbleBoardGame(function(data){
         $scope.board = data;
@@ -42,22 +43,26 @@ angular.module('lctUiApp')
           }
         }
         $scope.board.middleSquare = $scope.board.squares[7][7];
+
+        gameBoardService.getInitialFrenchDeck(function(data){
+          $scope.deck = data;
+          gameBoardService.sortTiles($scope.deck);
+          $scope.randomDraw();
+        });
       });
-      $scope.draw = [];
+
     };
 
     $scope.chooseLetter = function(index){
       gameBoardService.drawTile($scope.board, $scope.draw, $scope.deck, index);
       var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
-      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
-      $scope.selectedSuggestIndex = -1;
+      $scope.findWords();
     };
 
     $scope.unchooseLetter = function(index){
       gameBoardService.undrawTile($scope.draw, $scope.deck, index);
       var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
-      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
-      $scope.selectedSuggestIndex = -1;
+      $scope.findWords();
     };
 
     $scope.clearDraw = function(){
@@ -65,9 +70,8 @@ angular.module('lctUiApp')
     };
 
     $scope.randomDraw = function(){
-      gameBoardService.randomDraw($scope.board, $scope.draw, $scope.deck);
-      gameBoardService.findWords($scope.draw, $scope.board, $scope.suggestions);
-      $scope.selectedSuggestIndex = -1;
+      gameBoardService.randomDraw($scope.board, $scope.draw, $scope.deck, $scope.currentTurnNumber);
+      $scope.findWords();
     };
 
     $scope.startChangeJokerValue = function(tile){
@@ -80,10 +84,12 @@ angular.module('lctUiApp')
     };
 
     $scope.findWords = function(){
-      //gameBoardService.clearBoard($scope.board, $scope.draw);
-      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
-      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions);
       $scope.selectedSuggestIndex = -1;
+      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
+      $scope.callingFindWords = true;
+      gameBoardService.findWords(tiles, $scope.board, $scope.suggestions, function(){
+        $scope.callingFindWords = false;
+      });
     };
 
     $scope.putWord = function(suggest, $index){
@@ -93,6 +99,8 @@ angular.module('lctUiApp')
 
     $scope.validTurn = function(){
       gameBoardService.validTurn($scope.board);
+      $scope.currentTurnNumber++;
+      $scope.randomDraw();
     };
 
   }]);

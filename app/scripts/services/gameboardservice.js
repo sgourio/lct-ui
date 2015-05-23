@@ -166,13 +166,29 @@ angular.module('lctUiApp')
       },
 
 
-      randomDraw : function(board, draw, deck){
+      randomDraw : function(board, draw, deck, turnNumber){
         this.clearBoard(board, draw);
         this.clearDraw(draw, deck);
         var limit = Math.min(7, deck.length);
-        for( var i = 0; i < limit ; i++) {
-          var index = Math.floor(Math.random() * deck.length);
-          this.drawTile(board, draw, deck, index);
+        var correctDraw = false;
+        var nbTest = 0;
+        while( !correctDraw ) {
+          nbTest++;
+          var testDeck = deck.slice(0);
+          var testBoard = JSON.parse(JSON.stringify(board));
+          var deckIndexes = [];
+          var testDraw = [];
+          for (var i = 0; i < limit; i++) {
+            var index = Math.floor(Math.random() * testDeck.length);
+            deckIndexes.push(index);
+            this.drawTile(testBoard, testDraw, testDeck, index);
+          }
+          correctDraw = this.checkDraw(testDraw, turnNumber, testDeck) || nbTest > 100;
+          if( correctDraw &&  nbTest <= 100){
+            for (var j = 0; j < deckIndexes.length; j++) {
+              this.drawTile(board, draw, deck, deckIndexes[j]);
+            }
+          }
         }
       },
 
@@ -204,19 +220,22 @@ angular.module('lctUiApp')
         this.sortTiles(deck);
       },
 
-      findWords : function(draw, board, possibleWords){
+      findWords : function(draw, board, possibleWords, successCallback){
         var boardGameQueryBean = {
           tileList: draw,
           boardGame: board
         };
 
+        if( possibleWords.length > 0 ) {
+          possibleWords.splice(0, possibleWords.length);
+        }
         $http.post(apiRoot + '/board/fr/bestword', boardGameQueryBean).
           success(function (data) {
-            if( possibleWords.length > 0 ) {
-              possibleWords.splice(0, possibleWords.length);
-            }
+
             Array.prototype.push.apply(possibleWords, data);
             //console.log(data);
+
+            typeof successCallback === 'function' && successCallback();
           }).
           error(function (data, status) {
             console.log('Service ' + apiRoot + '/board/fr/deck/init' +' respond ' + status);
@@ -265,7 +284,49 @@ angular.module('lctUiApp')
             board.squares[i][j].justDropped = false;
           }
         }
+      },
+
+      checkDraw : function(draw, turnNumber, deck){
+        if( draw.length < 7 ){
+          return true;
+        }
+        var vowels = 0;
+        var consonnants = 0;
+        var isVowelLeft = !this.isOnlyConsonnant(deck);
+        var isConsonnantLeft = !this.isOnlyVowel(deck);
+        for( var i = 0 ; i < draw.length; i++){
+          var tile = draw[i];
+          if( tile.tileType === 'consonant' || tile.tileType === 'y' || tile.tileType === 'wildcard'){
+            consonnants++;
+          }
+          if( tile.tileType === 'vowel' || tile.tileType === 'y' || tile.tileType === 'wildcard'){
+            vowels++;
+          }
+        }
+        return (turnNumber >= 16 && ( (vowels >=1 && consonnants >= 1) || (vowels >=1 && !isConsonnantLeft) || ( !isVowelLeft && consonnants >= 1) )	) ||
+          (turnNumber <= 15 && ((vowels >=2 && consonnants >= 2) || (vowels >=2 && !isConsonnantLeft) || ( !isVowelLeft && consonnants >= 2) ));
+      },
+
+      isOnlyConsonnant : function( tileList ){
+        for( var i = 0 ; i < tileList.length; i++){
+          var tile = tileList[i];
+          if( tile.tileType === 'vowel' || tile.tileType === 'y' || tile.tileType === 'wildcard'){
+            return false;
+          }
+        }
+        return true;
+      },
+
+      isOnlyVowel : function( tileList ){
+        for( var i = 0 ; i < tileList.length; i++){
+          var tile = tileList[i];
+          if( tile.tileType === 'consonant' || tile.tileType === 'y' || tile.tileType === 'wildcard'){
+            return false;
+          }
+        }
+        return true;
       }
+
 
     };
     return gameBoardService;

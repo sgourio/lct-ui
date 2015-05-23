@@ -164,8 +164,16 @@ ul{
     &.selectedSuggestWord{
       font-weight: bold;
     }
+    span{
+      text-decoration: underline;
+    }
   }
 
+}
+
+div.ball-clip-rotate > div{
+  border-color: #333;
+  border-bottom-color: transparent;
 }
 
 
