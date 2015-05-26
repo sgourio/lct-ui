@@ -34,6 +34,7 @@ ul{
 
   .navbar{
     margin-bottom: 2px;
+    min-height: 24px;
   }
 
   /* Make the masthead heading the same height as the navigation */
@@ -51,6 +52,7 @@ ul{
   color: #777;
   border-top: 1px solid #e5e5e5;
 }
+
 
 .container-narrow > hr {
   margin: 30px 0;
@@ -94,6 +96,21 @@ ul{
   .jumbotron {
     border-bottom: 0;
   }
+
+  .navbar-nav > li > a {
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+  .navbar-brand{
+    padding-top: 0px;
+    padding-bottom: 0px;
+    height: 20px;
+    span{
+      font-style: italic;
+      font-size: 0.8em;
+    }
+  }
 }
 
 .board{
@@ -106,6 +123,11 @@ ul{
     position: absolute;
     width: 37px;
     height: 37px;
+
+    a{
+      margin-top: -15px;
+      display: block;
+    }
   }
 
   img{

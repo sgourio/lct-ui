@@ -8,7 +8,7 @@
  * Controller of the lctUiApp
  */
 angular.module('lctUiApp')
-  .controller('GamebuilderCtrl', ['$scope', '$http','gameBoardService', function ($scope, $http, gameBoardService) {
+  .controller('GamebuilderCtrl', ['$scope', '$http','gameBoardService', 'gameService', function ($scope, $http, gameBoardService, gameService) {
 
     var squareWitdh = 37;
     var squareHeight = 37;
@@ -29,8 +29,11 @@ angular.module('lctUiApp')
       $scope.deck = [];
       $scope.suggestions = [];
       $scope.selectedSuggestIndex= -1;
-      $scope.game = {};
-      $scope.game.turnList = [];
+      $scope.game = {
+        lang: 'fr',
+        name: '',
+        roundList: []
+      };
       $scope.draw = [];
       $scope.currentTurnNumber = 1;
 
@@ -55,18 +58,18 @@ angular.module('lctUiApp')
 
     $scope.chooseLetter = function(index){
       gameBoardService.drawTile($scope.board, $scope.draw, $scope.deck, index);
-      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
       $scope.findWords();
     };
 
     $scope.unchooseLetter = function(index){
       gameBoardService.undrawTile($scope.draw, $scope.deck, index);
-      var tiles = gameBoardService.getTilesFrom($scope.board, $scope.draw);
       $scope.findWords();
     };
 
     $scope.clearDraw = function(){
+      gameBoardService.clearBoard($scope.board, $scope.draw);
       gameBoardService.clearDraw($scope.draw, $scope.deck);
+      $scope.suggestions = [];
     };
 
     $scope.randomDraw = function(){
@@ -91,15 +94,25 @@ angular.module('lctUiApp')
       });
     };
 
-    $scope.putWord = function(suggest, $index){
+    $scope.putWord = function($index){
       $scope.selectedSuggestIndex = $index;
-      gameBoardService.putWord($scope.board, $scope.draw, suggest);
+      gameBoardService.putWord($scope.board, $scope.draw, $scope.suggestions[$index]);
     };
 
-    $scope.validTurn = function(){
-      gameBoardService.validTurn($scope.board);
+    $scope.validRound = function(){
+      var droppedWord = $scope.suggestions[$scope.selectedSuggestIndex];
+      var round = gameBoardService.validRound($scope.board, $scope.draw, droppedWord);
+      $scope.game.roundList.push(round);
       $scope.currentTurnNumber++;
       $scope.randomDraw();
+    };
+
+    $scope.createGame = function(){
+      if(typeof $scope.game.id === 'undefined' ) {
+        gameService.add($scope.game);
+      }else{
+        gameService.save($scope.game);
+      }
     };
 
   }]);

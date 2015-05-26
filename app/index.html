@@ -35,14 +35,14 @@
               <span class="icon-bar"></span>
             </button>
 
-            <a class="navbar-brand" href="#/">LCT</a>
+            <a class="navbar-brand" href="#/">LCT <span>Deluxe</span></a>
           </div>
 
-          <div class="collapse navbar-collapse" id="js-navbar-collapse">
+          <div class="collapse navbar-collapse" id="js-navbar-collapse" ng-controller="HeadercontrollerCtrl">
 
             <ul class="nav navbar-nav">
-              <li class="active"><a href="#/">Accueil</a></li>
-              <li><a ng-href="#/gameBuilder">Construire un jeu</a></li>
+              <li ng-class="{ active: isActive('/')}"><a href="#/" >Accueil</a></li>
+              <li ng-class="{ active: isActive('/gameBuilder')}"><a ng-href="#/gameBuilder">Construire un jeu</a></li>
               <li><a ng-href="#/about">About</a></li>
               <li><a ng-href="#/">Contact</a></li>
             </ul>
@@ -95,6 +95,8 @@
         <script src="scripts/controllers/gamebuilder.js"></script>
         <script src="scripts/services/gameboardservice.js"></script>
         <script src="scripts/directives/drag.js"></script>
+        <script src="scripts/controllers/headercontroller.js"></script>
+        <script src="scripts/services/gameservice.js"></script>
         <!-- endbuild -->
 </body>
 </html>

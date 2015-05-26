@@ -235,7 +235,9 @@ angular.module('lctUiApp')
         $http.post(apiRoot + '/board/fr/bestword', boardGameQueryBean).
           success(function (data) {
             Array.prototype.push.apply(possibleWords, data);
-            typeof successCallback === 'function' && successCallback();
+            if(typeof successCallback === 'function'){
+              successCallback();
+            }
           }).
           error(function (data, status) {
             console.log('Service ' + apiRoot + '/board/fr/bestword' +' respond ' + status);
@@ -278,12 +280,29 @@ angular.module('lctUiApp')
       },
 
 
-      validTurn : function(board){
+      validRound : function(board, draw, droppedWord){
+        var currentDraw = [];
+        Array.prototype.push.apply(currentDraw, draw);
         for( var i = 0 ; i < board.squares.length; i++){
           for( var j = 0; j < board.squares[i].length; j++){
-            board.squares[i][j].justDropped = false;
+            if(board.squares[i][j].justDropped){
+              currentDraw.push(board.squares[i][j].droppedTile.tile);
+            }
           }
         }
+
+        var round = {
+          draw: currentDraw,
+          droppedWord : droppedWord
+        };
+
+        for( var l = 0 ; l < board.squares.length; l++){
+          for( var m = 0; m < board.squares[l].length; m++){
+            board.squares[l][m].justDropped = false;
+          }
+        }
+
+        return round;
       },
 
       checkDraw : function(draw, turnNumber, deck){
